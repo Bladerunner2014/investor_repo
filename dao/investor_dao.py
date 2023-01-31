@@ -2,13 +2,11 @@ from db.query_builder import QueryBuilder
 from models.investors import InvestorsDB
 from db.db_condition import DBCondition
 from constants.sql_operator import SqlOperator
-import datetime
-from datetime import timezone
 
 
 class InvestorDao:
     def __init__(self):
-        self.db = QueryBuilder("investors_table")
+        self.db = QueryBuilder("test_inv")
         self.op = SqlOperator()
 
     def insert_new_investor(self, invedb: InvestorsDB):
@@ -35,12 +33,12 @@ class InvestorDao:
             ls.append(cond.condition)
         condi = DBCondition(term='user_id', operator=self.op.EQL, const=data['user_id'])
         condi.build_condition()
-        value = datetime.datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
-        cond_for_date = DBCondition(term='updated_at', operator=self.op.EQL, const=value)
-        cond_for_date.build_condition()
-        ls.append(cond_for_date.condition)
         try:
             self.db.update(update=ls, condition=condi.condition)
         except Exception as error:
             raise error
-
+        # updating the last update date
+        try:
+            self.db.update_date(user_id=data['user_id'])
+        except Exception as error:
+            raise error

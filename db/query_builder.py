@@ -1,5 +1,7 @@
 import logging
 import psycopg2
+import datetime
+from datetime import timezone
 from constants.error_message import ErrorMessage
 from constants.info_message import InfoMessage
 from constants.sql_operator import SqlOperator
@@ -79,4 +81,24 @@ class QueryBuilder:
             self.logger.error(error)
             raise error
         self.db.close_cursor_connection(cursor)
-        # self.db.return_connection_to_pool(self.db.db_connection)
+        #self.db.return_connection_to_pool(self.db.db_connection)
+
+    def update_date(self, user_id):
+        cursor = self.db.db_connection.cursor()
+        query = "UPDATE {table} SET updated_at='{value}' WHERE user_id = '{ui}';". \
+            format(table=self.table_name,
+                   value=datetime.datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
+                   ui=user_id)
+        try:
+            cursor.execute(query)
+            self.logger.info(InfoMessage.DB_QUERY)
+            self.logger.info(cursor.query)
+            self.db.db_connection.commit()
+        except psycopg2.Error as error:
+            self.logger.error(ErrorMessage.DB_INSERT)
+            self.logger.error(error)
+            raise error
+        self.db.close_cursor_connection(cursor)
+        self.db.return_connection_to_pool(self.db.db_connection)
+
+

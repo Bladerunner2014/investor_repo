@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 def get_investor():
     request_data = request.get_json()
     inv_manager = InvestorManager()
-    if inv_manager.handle_investor(request_data):
+    result = inv_manager.handle_investor(request_data)
+    if result:
         logger.info(InfoMessage.INV_SUCCESS)
-    return InfoMessage.INV_SUCCESS, 200
+    return result.generate_response()
 
 
 # To get the information of an investor from database
@@ -40,9 +41,10 @@ def info_investor(user_id):
 def update_investor():
     request_data = request.get_json()
     inv_manager = InvestorManager()
-    response = inv_manager.investor_update(request_data)
-
-    return response.generate_response()
+    result = inv_manager.investor_update(request_data)
+    if not result:
+        return logger.error(ErrorMessage.BAD_REQUEST)
+    return result.generate_response()
 
 
 swagger.run_swagger(app)

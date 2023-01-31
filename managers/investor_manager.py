@@ -3,8 +3,9 @@ from dao.investor_dao import InvestorDao
 from http_handler.response_handler import ResponseHandler
 from models.investors import InvestorsDB
 from constants.error_message import ErrorMessage
-import logging
 from constants.info_message import InfoMessage
+import logging
+
 from dotenv import dotenv_values
 from constants.enums import SubLevel
 
@@ -22,10 +23,11 @@ class InvestorManager:
         investor = InvestorsDB()
         investor.user_id = dt['user_id']
         investor.api_key = dt['api_key']
-        investor.is_subscribe = dt['is_subscribe']
-        investor.exchange = dt['exchange']
-        investor.sub_level = SubLevel(dt['sub_level']).value
+        investor.is_subscribe = True
+        investor.exchange = dt.get('exchange', "binance")
+        investor.sub_level = SubLevel(dt['sub_level']).name
         investor.expire_date = dt['expire_date']
+        # investor.secret_key = dt['secret_key']
 
         try:
             self.dao.insert_new_investor(investor)
@@ -35,10 +37,12 @@ class InvestorManager:
             raise Exception
         res = ResponseHandler()
         res.set_status_code(StatusCode.SUCCESS)
+        res.set_response({"message": InfoMessage.INV_SUCCESS})
         return res
 
     # return the information of an investor
     def investor_detail(self, user_id):
+
         try:
             result = self.dao.select_investor(user_id)
         except Exception as error:
@@ -47,19 +51,40 @@ class InvestorManager:
             raise Exception
 
         res = ResponseHandler()
+        if not result:
+            self.logger.error(ErrorMessage.DB_SELECT)
+            result = ErrorMessage.DB_SELECT
+            res.set_status_code(StatusCode.NOT_FOUND)
+        else:
+            res.set_status_code(StatusCode.SUCCESS)
+
         res.set_response({"message": result})
-        res.set_status_code(StatusCode.SUCCESS)
         return res
 
     # update the information of an investor
     def investor_update(self, data: dict):
         try:
-            self.dao.update_investor(data)
+            result = self.dao.select_investor(data["user_id"])
         except Exception as error:
             self.logger.error(ErrorMessage.DB_SELECT)
             self.logger.error(error)
             raise Exception
         res = ResponseHandler()
-        res.set_status_code(StatusCode.SUCCESS)
-        res.set_response({"message": InfoMessage.INV_UPDATE})
-        return res
+
+        if not result:
+            self.logger.error(ErrorMessage.DB_SELECT)
+            res.set_status_code(StatusCode.NOT_FOUND)
+            res.set_response({"message": ErrorMessage.DB_SELECT})
+            return res
+        else:
+
+            try:
+                self.dao.update_investor(data)
+            except Exception as error:
+                self.logger.error(ErrorMessage.DB_SELECT)
+                self.logger.error(error)
+                raise Exception
+            res.set_status_code(StatusCode.SUCCESS)
+            res.set_response({"message": InfoMessage.INV_UPDATE})
+
+            return res
