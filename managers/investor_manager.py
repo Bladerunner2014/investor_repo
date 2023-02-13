@@ -27,7 +27,7 @@ class InvestorManager:
         investor.exchange = dt.get('exchange', "binance")
         investor.sub_level = SubLevel(dt['sub_level']).name
         investor.expire_date = dt['expire_date']
-        # investor.secret_key = dt['secret_key']
+        investor.secret_key = dt['secret_key']
 
         try:
             self.dao.insert_new_investor(investor)
@@ -42,14 +42,12 @@ class InvestorManager:
 
     # return the information of an investor
     def investor_detail(self, user_id):
-
         try:
             result = self.dao.select_investor(user_id)
         except Exception as error:
             self.logger.error(ErrorMessage.DB_SELECT)
             self.logger.error(error)
             raise Exception
-
         res = ResponseHandler()
         if not result:
             self.logger.error(ErrorMessage.DB_SELECT)
@@ -57,8 +55,9 @@ class InvestorManager:
             res.set_status_code(StatusCode.NOT_FOUND)
         else:
             res.set_status_code(StatusCode.SUCCESS)
+        dictionary_result = self.create_dict_from_postgres(result)
 
-        res.set_response({"message": result})
+        res.set_response(dictionary_result)
         return res
 
     # update the information of an investor
@@ -88,3 +87,21 @@ class InvestorManager:
             res.set_response({"message": InfoMessage.INV_UPDATE})
 
             return res
+
+    @staticmethod
+    def create_dict_from_postgres(res):
+        columns = ['id',
+                   'user_id',
+                   'api_key',
+                   'secret_key',
+                   'is_subscribe',
+                   'exchange',
+                   'expire_date',
+                   'sub_level',
+                   'created_at',
+                   'updated_at']
+        results_list = []
+        for ls in res:
+            results_list.append({columns[i]: ls[i] for i in range(len(columns))})
+
+        return results_list[0]

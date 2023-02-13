@@ -8,7 +8,7 @@ class InvestorsDB:
     id = 'id'
     user_id = 'user_id'
     api_key = 'api_key'
-    # secret_key = 'secret_key'
+    secret_key = 'secret_key'
     is_subscribe = 'is_subscribe'
     exchange = 'exchange'
     expire_date = 'expire_date'
