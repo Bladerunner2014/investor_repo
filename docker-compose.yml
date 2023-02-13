@@ -1,0 +1,16 @@
+version: '3'
+services:
+  investors_repo:
+    image: investors_repo
+    ports:
+      - 5001:5001
+  postgres:
+    image: postgres
+    ports:
+      - 5432
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: '1234'
+      POSTGRES_DB: inv_repo
+
+      
