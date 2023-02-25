@@ -18,16 +18,21 @@ class InvestorManager:
         self.dao = InvestorDao()
 
     # insert new investor to the database
-    def handle_investor(self, dt: dict):
-
+    def handle_investor(self, dt: dict, user_id):
+        sub_level = dt.get('sub_level')
         investor = InvestorsDB()
-        investor.user_id = dt['user_id']
-        investor.api_key = dt['api_key']
-        investor.is_subscribe = True
-        investor.exchange = dt.get('exchange', "binance")
-        investor.sub_level = SubLevel(dt['sub_level']).name
-        investor.expire_date = dt['expire_date']
+        investor.user_id = user_id
+        investor.is_subscribe = dt.get('is_subscribe', True)
+        investor.expire_date = dt.get('expire_date')
+        investor.api_key = dt.get('api_key')
         investor.secret_key = dt['secret_key']
+        investor.exchange = dt.get('exchange')
+
+        if not all([sub_level, investor.expire_date, investor.api_key, investor.secret_key, investor.exchange]):
+            self.logger.error(ErrorMessage.BAD_REQUEST)
+            return ErrorMessage.BAD_REQUEST, StatusCode.BAD_REQUEST
+
+        investor.sub_level = SubLevel(sub_level).name
 
         try:
             self.dao.insert_new_investor(investor)
@@ -61,9 +66,9 @@ class InvestorManager:
         return res
 
     # update the information of an investor
-    def investor_update(self, data: dict):
+    def investor_update(self, data: dict, user_id):
         try:
-            result = self.dao.select_investor(data["user_id"])
+            result = self.dao.select_investor(user_id)
         except Exception as error:
             self.logger.error(ErrorMessage.DB_SELECT)
             self.logger.error(error)
