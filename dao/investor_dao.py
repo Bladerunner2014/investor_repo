@@ -24,6 +24,15 @@ class InvestorDao:
             raise error
         return result
 
+    def select_investor_by_id(self, investor_id):
+        try:
+            cond = DBCondition(term='id', operator=self.op.EQL, const=investor_id)
+            cond.build_condition()
+            result = self.db.select(condition=cond.condition)
+        except Exception as error:
+            raise error
+        return result
+
     def update_investor(self, data: dict):
         # create a list of conditions for update the information
         ls = []
