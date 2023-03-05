@@ -65,6 +65,25 @@ class InvestorManager:
         res.set_response(dictionary_result)
         return res
 
+    def investor_by_id(self, investor_id):
+        try:
+            result = self.dao.select_investor_by_id(investor_id)
+        except Exception as error:
+            self.logger.error(ErrorMessage.DB_SELECT)
+            self.logger.error(error)
+            raise Exception
+        res = ResponseHandler()
+        if not result:
+            self.logger.error(ErrorMessage.DB_SELECT)
+            result = ErrorMessage.DB_SELECT
+            res.set_status_code(StatusCode.NOT_FOUND)
+        else:
+            res.set_status_code(StatusCode.SUCCESS)
+        dictionary_result = self.create_dict_from_postgres(result)
+
+        res.set_response(dictionary_result)
+        return res
+
     # update the information of an investor
     def investor_update(self, data: dict, user_id):
         try:

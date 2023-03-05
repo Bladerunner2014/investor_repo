@@ -43,6 +43,18 @@ def info_investor():
     return inv_detail.investor_detail(user_id).generate_response()
 
 
+@v1_blueprint.route('/investor/id', methods=['GET'])
+def info_investor_by_id():
+    investor_id = request.headers.get('investor_id')
+
+    if investor_id is None:
+        logger.error(ErrorMessage.BAD_REQUEST)
+        return ErrorMessage.BAD_REQUEST, StatusCode.BAD_REQUEST
+
+    inv_detail = InvestorManager()
+    return inv_detail.investor_by_id(investor_id).generate_response()
+
+
 # To update the information of an investor
 @v1_blueprint.route("/investor", methods=["PUT"])
 def update_investor():
