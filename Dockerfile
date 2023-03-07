@@ -8,6 +8,6 @@ WORKDIR /investors_repo
 COPY ./requirements.txt  requirements.txt
 RUN pip install -r ./requirements.txt
 COPY . . 
-EXPOSE 8000/TCP
+EXPOSE 5001/TCP
 CMD ["python3","app.py"]
 

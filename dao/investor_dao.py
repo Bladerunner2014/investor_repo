@@ -6,7 +6,7 @@ from constants.sql_operator import SqlOperator
 
 class InvestorDao:
     def __init__(self):
-        self.db = QueryBuilder("test_inv")
+        self.db = QueryBuilder("investor")
         self.op = SqlOperator()
 
     def insert_new_investor(self, invedb: InvestorsDB):

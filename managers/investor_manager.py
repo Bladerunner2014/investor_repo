@@ -55,9 +55,8 @@ class InvestorManager:
             res.set_status_code(StatusCode.NOT_FOUND)
         else:
             res.set_status_code(StatusCode.SUCCESS)
-        dictionary_result = self.create_dict_from_postgres(result)
-
-        res.set_response(dictionary_result)
+            dictionary_result = self.create_dict_from_postgres(result)
+            res.set_response(dictionary_result)
         return res
 
     # update the information of an investor
@@ -93,13 +92,13 @@ class InvestorManager:
         columns = ['id',
                    'user_id',
                    'api_key',
-                   'secret_key',
                    'is_subscribe',
                    'exchange',
-                   'expire_date',
                    'sub_level',
+                   'expire_date',
+                   'updated_at',
                    'created_at',
-                   'updated_at']
+                   'secret_key']
         results_list = []
         for ls in res:
             results_list.append({columns[i]: ls[i] for i in range(len(columns))})
