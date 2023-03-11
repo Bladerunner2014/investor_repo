@@ -2,12 +2,16 @@ from db.query_builder import QueryBuilder
 from models.investors import InvestorsDB
 from db.db_condition import DBCondition
 from constants.sql_operator import SqlOperator
+from dotenv import dotenv_values
 
 
 class InvestorDao:
     def __init__(self):
-        self.db = QueryBuilder("investor")
+        self.config = dotenv_values(".env")
+
+        self.db = QueryBuilder(self.config["DB_TABLE_NAME"])
         self.op = SqlOperator()
+
 
     def insert_new_investor(self, invedb: InvestorsDB):
         try:
