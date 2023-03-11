@@ -47,38 +47,44 @@ class InvestorManager:
 
     # return the information of an investor
     def investor_detail(self, user_id):
+        res = ResponseHandler()
+
         try:
             result = self.dao.select_investor(user_id)
         except Exception as error:
             self.logger.error(ErrorMessage.DB_SELECT)
             self.logger.error(error)
-            raise Exception
-        res = ResponseHandler()
+            res.set_response({"message": ErrorMessage.DB_SELECT})
+            res.set_status_code(StatusCode.INTERNAL_ERROR)
+            return res
         if not result:
-            self.logger.error(ErrorMessage.DB_SELECT)
-            result = ErrorMessage.DB_SELECT
             res.set_status_code(StatusCode.NOT_FOUND)
-        else:
-            res.set_status_code(StatusCode.SUCCESS)
+            res.set_response({"message": ErrorMessage.DB_SELECT})
+            return res
+
+        res.set_status_code(StatusCode.SUCCESS)
         dictionary_result = self.create_dict_from_postgres(result)
 
         res.set_response(dictionary_result)
         return res
 
     def investor_by_id(self, investor_id):
+        res = ResponseHandler()
+
         try:
             result = self.dao.select_investor_by_id(investor_id)
         except Exception as error:
             self.logger.error(ErrorMessage.DB_SELECT)
             self.logger.error(error)
-            raise Exception
-        res = ResponseHandler()
+            res.set_response({"message": ErrorMessage.DB_SELECT})
+            res.set_status_code(StatusCode.INTERNAL_ERROR)
+            return res
         if not result:
-            self.logger.error(ErrorMessage.DB_SELECT)
-            result = ErrorMessage.DB_SELECT
             res.set_status_code(StatusCode.NOT_FOUND)
-        else:
-            res.set_status_code(StatusCode.SUCCESS)
+            res.set_response({"message": ErrorMessage.DB_SELECT})
+            return res
+
+        res.set_status_code(StatusCode.SUCCESS)
         dictionary_result = self.create_dict_from_postgres(result)
 
         res.set_response(dictionary_result)
@@ -117,13 +123,13 @@ class InvestorManager:
         columns = ['id',
                    'user_id',
                    'api_key',
-                   'secret_key',
                    'is_subscribe',
                    'exchange',
-                   'expire_date',
                    'sub_level',
+                   'expire_date',
+                   'updated_at',
                    'created_at',
-                   'updated_at']
+                   'secret_key', ]
 
         results_list = []
         for ls in res:
