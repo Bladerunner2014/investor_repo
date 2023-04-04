@@ -23,10 +23,11 @@ def get_investor():
         logger.error(ErrorMessage.BAD_REQUEST)
         return ErrorMessage.BAD_REQUEST, StatusCode.BAD_REQUEST
     request_data = request.get_json()
+    print(request_data)
+    print(user_id)
     inv_manager = InvestorManager()
     result = inv_manager.handle_investor(request_data, user_id)
-    if result:
-        logger.info(InfoMessage.INV_SUCCESS)
+
     return result.generate_response()
 
 

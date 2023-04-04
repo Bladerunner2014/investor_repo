@@ -13,5 +13,8 @@ class InfoMessage:
     VERIFY_SUCCESS = "verify successful"
 
     DB_QUERY = "db query"
+    REDIS_FIND="object found in redis"
+    REDIS_ADD = "object added to redis"
+    REDIS_DELETE = "object deleted"
 
     KAFKA_PRODUCE = "kafka produce"

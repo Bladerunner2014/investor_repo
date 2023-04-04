@@ -27,6 +27,8 @@ class ErrorMessage:
     REDIS_CONNECTION = "redis connection error"
     REDIS_SET = "redis SET error"
     REDIS_GET = "redis GET error"
+    REDIS_DELETE = "object does not exists"
+
     AUTH_SET = "auth SET error"
     VALIDATION_SET = "validation SET error"
     VALIDATION_GET = "validation GET error"
