@@ -1,7 +1,6 @@
 import redis
 import logging
 from dotenv import dotenv_values
-
 from constants.error_message import ErrorMessage
 
 
@@ -34,13 +33,21 @@ class CacheManager:
             self.logger.error(ErrorMessage.REDIS_GET)
             self.logger.error(error)
             raise Exception
-        return str(value)
+        return value
 
     def set(self, key, value, ttl):
         try:
             return self.cache.set(self.key_prefix + key, value, ex=ttl)
         except Exception as error:
             self.logger.error(ErrorMessage.REDIS_SET)
+            self.logger.error(error)
+            raise Exception
+
+    def delete(self, key):
+        try:
+            return self.cache.delete(self.key_prefix + key)
+        except Exception as error:
+            self.logger.error(ErrorMessage.REDIS_DELETE)
             self.logger.error(error)
             raise Exception
 
