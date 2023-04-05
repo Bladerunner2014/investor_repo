@@ -18,7 +18,6 @@ class InvestorManager:
         self.config = dotenv_values(".env")
         self.logger = logging.getLogger(__name__)
         self.dao = InvestorDao()
-        self.cache = CacheManager(self.config["INVESTOR_KEY_PREFIX"])
 
     # insert new investor to the database
     def handle_investor(self, dt: dict, user_id):
@@ -53,9 +52,11 @@ class InvestorManager:
 
     # return the information of an investor
     def investor_detail(self, user_id):
+        cache = CacheManager(self.config["INVESTOR_KEY_PREFIX"])
+
         res = ResponseHandler()
         try:
-            information = pickle.loads(self.cache.get(key=user_id))
+            information = pickle.loads(cache.get(key=user_id))
             self.logger.info(InfoMessage.REDIS_FIND)
 
             res.set_status_code(StatusCode.SUCCESS)
@@ -81,7 +82,7 @@ class InvestorManager:
         dictionary_result = self.create_dict_from_postgres(result)
         json_string = pickle.dumps(dictionary_result)
         try:
-            self.cache.set(key=str(user_id), value=json_string, ttl=int(self.config["INVESTOR_SET_TTL"]))
+            cache.set(key=str(user_id), value=json_string, ttl=int(self.config["INVESTOR_SET_TTL"]))
             self.logger.info(InfoMessage.REDIS_ADD)
         except (TypeError, KeyError, Exception):
             self.logger.error(ErrorMessage.REDIS_SET)
@@ -90,10 +91,21 @@ class InvestorManager:
         return res
 
     def investor_by_id(self, investor_id):
+        cache = CacheManager(self.config["INVESTOR_ID_KEY_PREFIX"])
+
         res = ResponseHandler()
+        try:
+            information = pickle.loads(cache.get(key=investor_id))
+            self.logger.info(InfoMessage.REDIS_FIND)
+
+            res.set_status_code(StatusCode.SUCCESS)
+            res.set_response(information)
+            return res
+        except (TypeError, KeyError, Exception):
+            self.logger.error(ErrorMessage.REDIS_GET)
 
         try:
-            result = self.dao.select_investor_by_id(investor_id)
+            result = self.dao.select_investor(investor_id)
         except Exception as error:
             self.logger.error(ErrorMessage.DB_SELECT)
             self.logger.error(error)
@@ -104,12 +116,6 @@ class InvestorManager:
             res.set_status_code(StatusCode.NOT_FOUND)
             res.set_response({"message": ErrorMessage.DB_SELECT})
             return res
-
-        res.set_status_code(StatusCode.SUCCESS)
-        dictionary_result = self.create_dict_from_postgres(result)
-
-        res.set_response(dictionary_result)
-        return res
 
     # update the information of an investor
     def investor_update(self, data: dict, user_id):
