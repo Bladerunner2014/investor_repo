@@ -117,6 +117,18 @@ class InvestorManager:
             res.set_response({"message": ErrorMessage.DB_SELECT})
             return res
 
+        res.set_status_code(StatusCode.SUCCESS)
+        dictionary_result = self.create_dict_from_postgres(result)
+        json_string = pickle.dumps(dictionary_result)
+        try:
+            cache.set(key=str(investor_id), value=json_string, ttl=int(self.config["INVESTOR_SET_TTL"]))
+            self.logger.info(InfoMessage.REDIS_ADD)
+        except (TypeError, KeyError, Exception):
+            self.logger.error(ErrorMessage.REDIS_SET)
+
+        res.set_response(dictionary_result)
+        return res
+
     # update the information of an investor
     def investor_update(self, data: dict, user_id):
         try:
