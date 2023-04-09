@@ -105,7 +105,7 @@ class InvestorManager:
             self.logger.error(ErrorMessage.REDIS_GET)
 
         try:
-            result = self.dao.select_investor(investor_id)
+            result = self.dao.select_investor_by_id(investor_id)
         except Exception as error:
             self.logger.error(ErrorMessage.DB_SELECT)
             self.logger.error(error)
